@@ -1,5 +1,9 @@
 #!/bin/sh
-# Démarrer PHP-FPM en arrière-plan avec logs dans /tmp
+# Configurer PHP-FPM pour utiliser /tmp
+export PHP_FPM_DIR=/tmp/php-fpm
+mkdir -p $PHP_FPM_DIR
+
+# Démarrer PHP-FPM avec configuration personnalisée
 php-fpm82 --nodaemonize --fpm-config /etc/php82/php-fpm.conf &
 
 # Démarrer Caddy
