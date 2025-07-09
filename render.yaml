@@ -3,6 +3,7 @@ services:
     name: certifsure-laravel
     env: docker
     plan: free
+    startCommand: php-fpm
     envVars:
       - key: APP_ENV
         value: production
