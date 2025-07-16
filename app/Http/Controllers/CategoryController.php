@@ -33,6 +33,16 @@ class CategoryController extends Controller
             'name' => 'required|string|max:255|unique:categories,name',
         ]);
 
+        // Gestion de l'image
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('categories', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        // Crée la catégorie avec les données validées
+        $data['image'] = $data['image'] ?? null; // Assure que 'image' is set to null if not provided
+        $data['name'] = trim($data['name']); // Trim whitespace from category name
+
         $category = Category::create($data);
 
         return response()->json(['message' => 'Category created successfully', 'category' => $category], 201);
@@ -59,7 +69,20 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $data = $request->validate([
+            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
+        ]);
+
+        // Gestion de l'image
+        if ($request->hasFile('image')) {
+            $imagePath = $request->file('image')->store('categories', 'public');
+            $data['image'] = $imagePath;
+        }
+
+        // Met à jour la catégorie avec les données validées
+        $category->update($data);
+
+        return response()->json(['message' => 'Category updated successfully', 'category' => $category], 200);
     }
 
     /**
@@ -67,6 +90,8 @@ class CategoryController extends Controller
      */
     public function destroy(Category $category)
     {
-        //
+        $category->delete();
+
+        return response()->json(['message' => 'Category deleted successfully'], 200);
     }
 }

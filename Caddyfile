@@ -1,5 +1,0 @@
-:80 {
-    root * /var/www/public
-    php_fastcgi unix//run/php/php-fpm82.sock
-    file_server
-}

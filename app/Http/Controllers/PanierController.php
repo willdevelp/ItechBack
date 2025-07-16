@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Panier;
-use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 
 class PanierController extends Controller
@@ -57,5 +57,18 @@ class PanierController extends Controller
         }
 
         return response()->json(['message' => 'Produit retiré du panier']);
+    }
+
+    public function countProduits()
+    {
+        $user = Auth::user();
+        $panier = Panier::where('user_id', $user->id)->first();
+
+        $count = 0;
+        if ($panier) {
+            $count = $panier->products()->sum('panier_produit.quantity');
+        }
+
+        return response()->json(['count' => $count]);
     }
 }

@@ -11,11 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('categories', function (Blueprint $table) {
-            $table->id();
-            $table->string('name')->unique();
-            $table->string('image')->nullable();
-            $table->timestamps();
+        Schema::table('users', function (Blueprint $table) {
+            $table->timestamp('phone_verified_at')->nullable()->after('email_verified_at');
+            $table->boolean('newsletter_opt_in')->default(false)->after('postal_code');
         });
     }
 
@@ -24,6 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('categories');
+        Schema::table('users', function (Blueprint $table) {
+            //
+        });
     }
 };
