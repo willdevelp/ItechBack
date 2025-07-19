@@ -43,6 +43,23 @@ class PanierController extends Controller
         return response()->json(['message' => 'Produit ajouté au panier']);
     }
 
+    public function updateProduit(Request $request)
+    {
+        $request->validate([
+            'product_id' => 'required|exists:products,id',
+            'quantity' => 'required|integer|min:1',
+        ]);
+
+        $user = auth()->user();
+        $panier = Panier::firstOrCreate(['user_id' => $user->id]);
+
+        $panier->products()->updateExistingPivot($request->product_id, [
+            'quantity' => $request->quantity
+        ]);
+
+        return response()->json(['message' => 'Quantité mise à jour']);
+    }
+
     public function removeProduit(Request $request)
     {
         $request->validate([

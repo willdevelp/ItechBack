@@ -31,13 +31,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/panier', [PanierController::class, 'getPanier']);
     Route::post('/panier/ajouter', [PanierController::class, 'addProduit']);
     Route::delete('/panier/supprimer', [PanierController::class, 'removeProduit']);
-
+    Route::put('/panier/mise-a-jour', [PanierController::class, 'updateProduit']);
     // Panier
     Route::get('/sum', [PanierController::class, 'countProduits']);
 
     // Commandes
     Route::post('/commands', [CommandController::class, 'passerCommande']);
     Route::get('/mes-commands', [CommandController::class, 'mesCommandes']);
+    Route::get('/best-sellers', [CommandController::class, 'bestSellers']);
 
 
 

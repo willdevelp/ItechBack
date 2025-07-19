@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Command;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Models\Product;
 
 class CommandController extends Controller
 {
@@ -78,5 +80,36 @@ class CommandController extends Controller
         }
 
         return response()->json(['message' => 'Toutes les commandes ont été supprimées avec succès']);
+    }
+
+    /**
+     * Affiche les produits les plus vendus avec le nombre de ventes.
+     */
+    public function bestSellers()
+    {
+        $products = DB::table('commande_produit')
+            ->select('product_id', DB::raw('SUM(quantity) as total_sold'))
+            ->groupBy('product_id')
+            ->orderByDesc('total_sold')
+            ->take(10)
+            ->get();
+
+        // Charger les infos produit
+        $result = [];
+        foreach ($products as $row) {
+            $product = Product::find($row->product_id);
+            if ($product) {
+                $result[] = [
+                    'id' => $product->id,
+                    'name' => $product->name,
+                    'price' => $product->price,
+                    'promoprice' => $product->promoprice,
+                    'image' => $product->image,
+                    'total_sold' => $row->total_sold,
+                ];
+            }
+        }
+
+        return response()->json($result, 200);
     }
 }

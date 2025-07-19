@@ -42,7 +42,7 @@ class AuthController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'email' => 'required_without:phone|email|unique:users,email',
-            'phone' => 'required_without:email|string|unique:users,phone',
+            'phone' =>  ['required_without:email', 'phone:AUTO', 'unique:users,phone'],
             'method' => 'required|in:email,phone'
         ]);
 
@@ -180,15 +180,17 @@ class AuthController extends Controller
             'newsletter_opt_in' => $request->newsletter_opt_in ?? false
         ]);
 
+        $method = $request->has('email') ? 'email' : 'phone';
+
          // Journaliser l'OTP
         OtpLog::create([
-            'identifier' => $identifier,
-            'method' => $request->method,
-            'code' => $request->verification_code,
-            'ip_address' => $request->ip(),
-            'user_agent' => $request->userAgent(),
-            'verified_at' => now()
-        ]);
+    'identifier' => $request->email ?? $request->phone,
+    'method' => $method,
+    'code' => $cachedCode,
+    'ip_address' => $request->ip(),
+    'user_agent' => $request->userAgent(),
+    'verified_at' => now()
+]);
 
         // Nettoyer les caches
         Cache::forget('verification_code_' . $identifier);
