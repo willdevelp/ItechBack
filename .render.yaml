@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: Shopitech
+    env: docker
+    plan: free
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_URL
+        value: https://itech.onrender.com
+
+      # Configuration PostgreSQL
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d1toauripnbc73cibucg-a
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: itech_kwp7
+      - key: DB_USERNAME
+        value: itech_kwp7_user
+      - key: DB_PASSWORD
+        value: s6cim6WzAWv3F6ksz6JWj7SbTvO73jEg
