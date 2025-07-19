@@ -25,7 +25,15 @@ WORKDIR /var/www
 COPY . .
 
 # Étape 6 : Installation des dépendances Laravel
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+RUN composer install --optimize-autoloader
+
+# Copier .env.example vers .env
+RUN cp .env.example .env
+
+
+# Générer la clé d'application Laravel
+RUN php artisan key:generate
+
 
 # Étape 7 : Droits sur les dossiers nécessaires
 RUN chown -R www-data:www-data \
@@ -35,4 +43,7 @@ RUN chown -R www-data:www-data \
 # Étape 8 : Exposition du port FPM
 EXPOSE 8080
 # Étape 9 : Commande de démarrage
-CMD ["php", "artisan", "serve", "--host=0.0.0.0", "--port=8080"]
+# CMD ["php", "artisan", "serve"]
+
+# Commande de démarrage
+CMD php artisan serve --host=0.0.0.0 --port=${PORT:-8080}
