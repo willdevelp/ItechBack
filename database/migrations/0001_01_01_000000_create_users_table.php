@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('surname');
-            $table->string('email')->unique()->nullable();
+            $table->string('email')->unique(191)->nullable();
             $table->string('address')->nullable();
             $table->string('country')->nullable();
             $table->enum('role', ['admin', 'user'])->default('user'); // Added role field
