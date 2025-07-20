@@ -34,6 +34,9 @@ RUN cp .env.example .env
 # Générer la clé d'application Laravel
 RUN php artisan key:generate
 
+#ajouter un lien 
+RUN php artisan storage:link
+
 
 # Étape 7 : Droits sur les dossiers nécessaires
 RUN chown -R www-data:www-data \
