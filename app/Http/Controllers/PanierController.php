@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Panier;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PanierController extends Controller
 {
@@ -19,28 +20,44 @@ class PanierController extends Controller
 
     public function addProduit(Request $request)
     {
-        $request->validate([
-            'product_id' => 'required|exists:products,id',
-            'quantity' => 'required|integer|min:1',
+        $validated = $request->validate([
+            'product_name' => 'required|string|exists:products,name',
+            'quantity' => 'required|integer|min:1|max:100'
         ]);
-
+    
+        // Récupération du produit
+        $product = Product::where('name', $validated['product_name'])->firstOrFail();
         $user = auth()->user();
-        $panier = Panier::firstOrCreate(['user_id' => $user->id]);
-
-        // Vérifie si le produit existe déjà dans le panier
-        $exists = $panier->products()->where('product_id', $request->product_id)->exists();
-
-        if ($exists) {
-            // Incrémente la quantité
-            $currentQuantity = $panier->products()->where('product_id', $request->product_id)->first()->pivot->quantity;
-            $panier->products()->updateExistingPivot($request->product_id, [
-                'quantity' => $currentQuantity + $request->quantity
+    
+        // Utilisation d'une transaction pour plus de sécurité
+        return DB::transaction(function () use ($user, $product, $validated) {
+            $panier = Panier::firstOrCreate(['user_id' => $user->id]);
+    
+            // Vérification existante avec le bon product_id
+            $existingProduct = $panier->products()
+                ->where('product_id', $product->id)
+                ->first();
+    
+            if ($existingProduct) {
+                // Mise à jour de la quantité
+                $newQuantity = $existingProduct->pivot->quantity + $validated['quantity'];
+                $panier->products()->updateExistingPivot($product->id, [
+                    'quantity' => $newQuantity
+                ]);
+            } else {
+                // Ajout du nouveau produit
+                $panier->products()->attach($product->id, [
+                    'quantity' => $validated['quantity']
+                ]);
+            }
+    
+            // Retourne les données fraîches du panier
+            $panier->load('products');
+            return response()->json([
+                'message' => 'Produit ajouté au panier',
+                'panier' => $panier
             ]);
-        } else {
-            $panier->products()->attach($request->product_id, ['quantity' => $request->quantity]);
-        }
-
-        return response()->json(['message' => 'Produit ajouté au panier']);
+        });
     }
 
     public function updateProduit(Request $request)

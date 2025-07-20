@@ -84,9 +84,7 @@ class ProductController extends Controller
     public function show($name)
     {
         // Charge le produit avec ses relations
-        $product = Product::with(['category:id,name'])
-            ->where('name', $name)
-            ->firstOrFail();
+        $product = Product::with('category')->findOrFail($name);
 
         // Structure de la réponse
         $response = [
