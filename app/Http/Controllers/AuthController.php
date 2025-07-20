@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\OtpLog;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
@@ -12,7 +13,6 @@ use Illuminate\Support\Facades\Mail;
 use App\Mail\VerificationCodeMail;
 use Illuminate\Support\Facades\Cache;
 use Twilio\Rest\Client;
-use App\Models\OtpLog;
 
 class AuthController extends Controller
 {
