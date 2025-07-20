@@ -55,11 +55,11 @@ class AuthController extends Controller
 
         $verificationCode = str_pad(rand(0, 999999), 6, '0', STR_PAD_LEFT);
         $identifier = $request->input('method') === 'email' ? $request->email : $request->phone;
-        
+
         // Stocker le code dans le cache pour 15 minutes
         Cache::put(
-            'verification_code_' . $identifier, 
-            $verificationCode, 
+            'verification_code_' . $identifier,
+            $verificationCode,
             now()->addMinutes(15)
         );
 
@@ -105,8 +105,8 @@ class AuthController extends Controller
 
         // Marquer l'email/phone comme vérifié dans le cache
         Cache::put(
-            'verified_' . $identifier, 
-            true, 
+            'verified_' . $identifier,
+            true,
             now()->addMinutes(30)
         );
 
@@ -153,7 +153,7 @@ class AuthController extends Controller
         }
 
         $identifier = $request->email ?? $request->phone;
-        
+
         // Vérifier que l'email/phone a été vérifié
         if (!Cache::get('verified_' . $identifier)) {
             return response()->json([
@@ -184,13 +184,13 @@ class AuthController extends Controller
 
          // Journaliser l'OTP
         OtpLog::create([
-    'identifier' => $request->email ?? $request->phone,
-    'method' => $method,
-    'code' => $cachedCode,
-    'ip_address' => $request->ip(),
-    'user_agent' => $request->userAgent(),
-    'verified_at' => now()
-]);
+            'identifier' => $request->email ?? $request->phone,
+            'method' => $method,
+            'code' => $cachedCode,
+            'ip_address' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'verified_at' => now()
+        ]);
 
         // Nettoyer les caches
         Cache::forget('verification_code_' . $identifier);
@@ -216,7 +216,7 @@ class AuthController extends Controller
 
         // Essayer de se connecter avec email ou phone
         $field = filter_var($request->input('email'), FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
-        
+
         if (!Auth::attempt([$field => $request->input($field), 'password' => $request->password])) {
             return response()->json(['message' => 'Invalid credentials'], 401);
         }
@@ -225,8 +225,8 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Login successful', 
-            'user' => $user, 
+            'message' => 'Login successful',
+            'user' => $user,
             'token' => $token
         ], 200);
     }
@@ -270,7 +270,7 @@ class AuthController extends Controller
         $user->update($data);
 
         return response()->json([
-            'message' => 'User updated successfully', 
+            'message' => 'User updated successfully',
             'user' => $user
         ], 200);
     }
