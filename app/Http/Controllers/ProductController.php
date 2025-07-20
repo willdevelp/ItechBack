@@ -104,12 +104,14 @@ class ProductController extends Controller
 
     public function showByCategory($categoryName)
     {
-        $products = Product::where('category_name', $categoryName)->get();
-
+        $products = Product::whereHas('category', function($query) use ($categoryName) {
+            $query->where('name', $categoryName);
+        })->get();
+    
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No products found for this category'], 404);
         }
-
+    
         return response()->json($products, 200);
     }
 
