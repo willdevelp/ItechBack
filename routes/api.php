@@ -17,56 +17,61 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/send-verification-code', [AuthController::class, 'sendVerificationCode']);
 Route::post('/verify-code', [AuthController::class, 'verifyCode']);
 Route::post('/resend-verification-code', [AuthController::class, 'resendVerificationCode']);
-Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])
-    ->middleware('auth:sanctum');
+
 Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLinkEmail']);
 Route::post('/reset-password', [ResetPasswordController::class, 'reset']);
 Route::middleware('auth:sanctum')->group(function () {
+    //user
     Route::get('/user', [AuthController::class, 'user']);
     Route::put('/update', [AuthController::class, 'update']);
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/users', [AuthController::class, 'getAllUsers']);
 
-    // Commands
+    // Panier
+    Route::get('/sum', [PanierController::class, 'countProduits']);
     Route::get('/panier', [PanierController::class, 'getPanier']);
     Route::post('/panier/ajouter', [PanierController::class, 'addProduit']);
     Route::delete('/panier/supprimer', [PanierController::class, 'removeProduit']);
     Route::put('/panier/mise-a-jour', [PanierController::class, 'updateProduit']);
-    // Panier
-    Route::get('/sum', [PanierController::class, 'countProduits']);
 
     // Commandes
     Route::post('/commands', [CommandController::class, 'passerCommande']);
     Route::get('/mes-commands', [CommandController::class, 'mesCommandes']);
-    Route::get('/best-sellers', [CommandController::class, 'bestSellers']);
-
-
-
-
-});
-Route::get('/products/top-promos', [ProductController::class, 'topPromoProducts']);
-Route::get('/products/latest', [ProductController::class, 'latestProducts']);
-Route::get('/commands', [CommandController::class, 'index']);
-Route::put('/commands/{id}', [CommandController::class, 'updateOrderStatus']);
-Route::delete('/commands/{id}', [CommandController::class, 'destroy']);
-Route::post('/products', [ProductController::class, 'store']);
-Route::get('/products', [ProductController::class, 'index']);
-Route::get('/products/{id}', [ProductController::class, 'show']);
-Route::get('/products/category/{categoryId}', [ProductController::class, 'showByCategory']);
-Route::put('/products/{id}', [ProductController::class, 'update']);
-Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+    Route::get('/commands', [CommandController::class, 'index']);
+    Route::put('/commands/{id}', [CommandController::class, 'updateOrderStatus']);
+    Route::delete('/commands/{id}', [CommandController::class, 'destroy']);
 
     // Favorites
-    Route::post('/favorites', [FavoriteController::class, 'store']);
-    Route::get('/favorites/user/{userId}', [FavoriteController::class, 'index']);
-    Route::get('/favorites/{id}', [FavoriteController::class, 'show']);
-    Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
+    // Route::post('/favorites', [FavoriteController::class, 'store']);
+    // Route::get('/favorites/user/{userId}', [FavoriteController::class, 'index']);
+    // Route::get('/favorites/{id}', [FavoriteController::class, 'show']);
+    // Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
 
-Route::post('/categories', [CategoryController::class, 'store']);
+    // Publicities
+    Route::post('/publicities', [PublicityController::class, 'index']);
+
+    //Produits
+    Route::post('/products', [ProductController::class, 'store']);
+    Route::put('/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
+
+    //Categories
+    Route::post('/categories', [CategoryController::class, 'store']);
+});
+
+// Produits
+Route::get('/products/top-promos', [ProductController::class, 'topPromoProducts']);
+Route::get('/products/latest', [ProductController::class, 'latestProducts']);
+Route::get('/products', [ProductController::class, 'index']);
+Route::get('/products/{name}', [ProductController::class, 'show']);
+Route::get('/products/category/{categoryName}', [ProductController::class, 'showByCategory']);
+Route::get('/best-sellers', [CommandController::class, 'bestSellers']);
+
+//Categories
 Route::get('/categories', [CategoryController::class, 'index']);
 
-Route::post('/publicities', [PublicityController::class, 'store']);
-
+//Publicities
 Route::get('/publicities', [PublicityController::class, 'index']);
 
 

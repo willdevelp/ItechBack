@@ -81,10 +81,10 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show($id)
+    public function show($name)
     {
         // Charge le produit avec ses relations
-        $product = Product::with('category')->findOrFail($id);
+        $product = Product::with('category')->findOrFail($name);
 
         // Structure de la réponse
         $response = [
@@ -102,9 +102,9 @@ class ProductController extends Controller
         return response()->json($response, 200);
     }
 
-    public function showByCategory($categoryId)
+    public function showByCategory($categoryName)
     {
-        $products = Product::where('category_id', $categoryId)->get();
+        $products = Product::where('category_name', $categoryName)->get();
 
         if ($products->isEmpty()) {
             return response()->json(['message' => 'No products found for this category'], 404);
