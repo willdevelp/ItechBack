@@ -25,8 +25,7 @@ WORKDIR /var/www
 COPY . .
 
 # Étape 6 : Installation des dépendances Laravel
-RUN composer dump-autoload --optimize && \
-    php artisan package:discover --ansi
+RUN composer install --optimize-autoloader
 
 # Copier .env.example vers .env
 RUN cp .env.example .env
