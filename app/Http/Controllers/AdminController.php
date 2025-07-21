@@ -15,8 +15,6 @@ class AdminController extends Controller
      */
     public function __construct()
     {
-        parent::__construct();
-        
         $this->middleware('auth:sanctum');
         $this->middleware(function ($request, $next) {
             if (Auth::user()->role !== 'admin') {
