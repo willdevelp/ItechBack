@@ -13,16 +13,16 @@ class AdminController extends Controller
      *
      * @return void
      */
-    public function __construct()
-    {
-        $this->middleware('auth:sanctum');
-        $this->middleware(function ($request, $next) {
-            if (Auth::user()->role !== 'admin') {
-                return response()->json(['message' => 'Unauthorized'], 403);
-            }
-            return $next($request);
-        });
-    }
+public function __construct()
+{
+    $this->middleware('auth:sanctum');
+    $this->middleware(function ($request, $next) {
+        if (Auth::user()->role !== 'admin') {
+            return response()->json(['message' => 'Unauthorized'], 403);
+        }
+        return $next($request);
+    });
+}
 
     /**
      * Récupère tous les utilisateurs
