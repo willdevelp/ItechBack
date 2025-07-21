@@ -13,11 +13,11 @@ return new class extends Migration
     {
         Schema::create('commands', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('payment');
             $table->date('datecom');
             $table->decimal('total_price', 10, 2);
-            $table->string('status')->default('en attente');
+            $table->string('status')->default('pending'); // e.g., pending, completed
             $table->timestamps();
         });
     }

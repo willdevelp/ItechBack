@@ -12,6 +12,7 @@ use App\Http\Controllers\PanierController;
 use App\Http\Controllers\CommandController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\PublicityController;
+use App\Http\Controllers\AdminController;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/send-verification-code', [AuthController::class, 'sendVerificationCode']);
@@ -74,7 +75,8 @@ Route::get('/categories', [CategoryController::class, 'index']);
 //Publicities
 Route::get('/publicities', [PublicityController::class, 'index']);
 
-
-
-
-
+// Routes d'administration
+Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
+    Route::get('/users', [AdminController::class, 'index']);
+    Route::get('/users/{id}', [AdminController::class, 'show']);
+});
