@@ -75,8 +75,13 @@ Route::get('/categories', [CategoryController::class, 'index']);
 //Publicities
 Route::get('/publicities', [PublicityController::class, 'index']);
 
-// Routes d'administration
-Route::prefix('admin')->middleware(['auth:sanctum'])->group(function () {
-    Route::get('/users', [AdminController::class, 'index']);
+//Admin
+Route::middleware(['auth', function ($request, $next) {
+    if (Auth::user()->role !== 'admin') {
+        return response()->json(['error' => 'Accès refusé'], 403);
+    }
+    return $next($request);
+}])->group(function () {
+    Route::get('/admin/users', [AdminController::class, 'index']);
     Route::get('/users/{id}', [AdminController::class, 'show']);
 });

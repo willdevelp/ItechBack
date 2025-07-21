@@ -8,20 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    /**
-     * Create a new controller instance.
-     *
-     * @return void
-     */
-    public function __construct()
-    {
-        $this->middleware(function ($request, $next) {
-            if (Auth::user()->role !== 'admin') {
-                return response()->json(['error' => 'Vous n\'avez pas les droits pour accder  cette ressource'], 403);
-            }
-            return $next($request);
-        });
-    }
 
     /**
      * Récupère tous les utilisateurs
