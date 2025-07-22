@@ -76,7 +76,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/publicities', [PublicityController::class, 'index']);
 
 //Admin
-Route::middleware(['auth', 'isAdmin'])->group(function () {
+Route::middleware(['auth:sanctum', 'isAdmin'])->group(function () {
     Route::get('/admin/users', [AdminController::class, 'index']);
     Route::get('/users/{id}', [AdminController::class, 'show']);
 });
