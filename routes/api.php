@@ -40,26 +40,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Commandes
     Route::post('/commands', [CommandController::class, 'passerCommande']);
     Route::get('/mes-commands', [CommandController::class, 'mesCommandes']);
-    Route::get('/commands', [CommandController::class, 'index']);
-    Route::put('/commands/{id}', [CommandController::class, 'updateOrderStatus']);
-    Route::delete('/commands/{id}', [CommandController::class, 'destroy']);
 
     // Favorites
     // Route::post('/favorites', [FavoriteController::class, 'store']);
     // Route::get('/favorites/user/{userId}', [FavoriteController::class, 'index']);
     // Route::get('/favorites/{id}', [FavoriteController::class, 'show']);
     // Route::delete('/favorites/{id}', [FavoriteController::class, 'destroy']);
-
-    // Publicities
-    Route::post('/publicities', [PublicityController::class, 'index']);
-
-    //Produits
-    Route::post('/products', [ProductController::class, 'store']);
-    Route::put('/products/{id}', [ProductController::class, 'update']);
-    Route::delete('/products/{id}', [ProductController::class, 'destroy']);
-
-    //Categories
-    Route::post('/categories', [CategoryController::class, 'store']);
 });
 
 // Produits
@@ -80,4 +66,17 @@ Route::get('/publicities', [PublicityController::class, 'index']);
 Route::middleware([IsAdmin::class])->group(function () {
     Route::get('/admin/users', [AdminController::class, 'index']);
     Route::get('/users/{id}', [AdminController::class, 'show']);
+    Route::get('/admin/commands', [CommandController::class, 'index']);
+    Route::put('/admin/commands/{id}', [CommandController::class, 'updateOrderStatus']);
+    Route::delete('/admin/commands/{id}', [CommandController::class, 'destroy']);
+    Route::get('/admin/products', [ProductController::class, 'index']);
+    Route::put('/admin/products/{id}', [ProductController::class, 'update']);
+    Route::delete('/admin/products/{id}', [ProductController::class, 'destroy']);
+    Route::post('/admin/products', [ProductController::class, 'store']);
+    Route::get('/admin/categories', [CategoryController::class, 'index']);
+    Route::post('/admin/categories', [CategoryController::class, 'store']);
+    Route::delete('/admin/categories/{id}', [CategoryController::class, 'destroy']);
+    Route::get('/admin/allpublicities', [PublicityController::class, 'index']);
+    Route::post('/admin/publicities', [PublicityController::class, 'store']);
+    Route::delete('/admin/publicities/{id}', [PublicityController::class, 'destroy']);
 });
