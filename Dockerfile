@@ -24,11 +24,12 @@ WORKDIR /var/www
 # Étape 5 : Copie du code source Laravel
 COPY . .
 
-# Étape 6 : Installation des dépendances Laravel (AVANT les commandes artisan)
-RUN composer install --optimize-autoloader --no-interaction --prefer-dist
-
-# Étape 7 : Copie et configuration initiale
+# Étape 6 : Copie et configuration initiale
 RUN cp .env.example .env
+
+# Étape 7 : Installation des dépendances Laravel (AVANT les commandes artisan)
+RUN composer install --optimize-autoloader
+
 
 # Étape 8 : Génération de la clé Laravel
 RUN php artisan key:generate
