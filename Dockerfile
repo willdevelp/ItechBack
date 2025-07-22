@@ -28,7 +28,7 @@ COPY . .
 RUN cp .env.example .env
 
 # Étape 7 : Installation des dépendances Laravel (AVANT les commandes artisan)
-RUN composer install --optimize-autoloader
+RUN composer install 
 
 
 # Étape 8 : Génération de la clé Laravel
