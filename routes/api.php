@@ -13,6 +13,7 @@ use App\Http\Controllers\CommandController;
 use App\Http\Controllers\FavoriteController;
 use App\Http\Controllers\PublicityController;
 use App\Http\Controllers\AdminController;
+use App\Http\Middleware\IsAdmin;
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/send-verification-code', [AuthController::class, 'sendVerificationCode']);
@@ -76,7 +77,7 @@ Route::get('/categories', [CategoryController::class, 'index']);
 Route::get('/publicities', [PublicityController::class, 'index']);
 
 //Admin
-Route::middleware(['auth', 'isAdmin'])->group(function () {
+Route::middleware([IsAdmin::class])->group(function () {
     Route::get('/admin/users', [AdminController::class, 'index']);
     Route::get('/users/{id}', [AdminController::class, 'show']);
 });
