@@ -106,7 +106,7 @@ class ProductController extends Controller
 
     public function showByCategory($categoryName)
     {
-        $products = Product::whereHas('category', function($query) use ($categoryName) {
+        $products = Product::whereHas('category', function ($query) use ($categoryName) {
             $query->where('name', $categoryName);
         })->get();
     
@@ -115,6 +115,40 @@ class ProductController extends Controller
         }
     
         return response()->json($products, 200);
+    }
+
+    /**
+     * Recherche des produits par nom, description ou catégorie
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function search(Request $request)
+    {
+        $query = $request->query('q');
+        
+        if (empty($query)) {
+            return response()->json([], 200);
+        }
+
+        $products = Product::with(['category'])
+            ->where(function($q) use ($query) {
+                $q->where('name', 'like', "%{$query}%")
+                  ->orWhere('description', 'like', "%{$query}%")
+                  ->orWhereHas('category', function($categoryQuery) use ($query) {
+                      $categoryQuery->where('name', 'like', "%{$query}%");
+                  });
+            })
+            ->select('id', 'name', 'description', 'price', 'promoprice', 'image', 'category_id')
+            ->limit(10)
+            ->get()
+            ->map(function($product) {
+                // Inclure le nom de la catégorie dans les résultats
+                $product->category_name = $product->category->name;
+                return $product;
+            });
+
+        return response()->json($products);
     }
 
     /**
