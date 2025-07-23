@@ -73,10 +73,13 @@ class PublicityController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Publicity $publicity)
+    public function destroy($id)
     {
+        $publicity = Publicity::find($id);
+        if (!$publicity) {
+            return response()->json(['message' => 'Publicity not found'], 404);
+        }
         $publicity->delete();
-
         return response()->json(['message' => 'Publicity deleted successfully'], 200);
     }
 }

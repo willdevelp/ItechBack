@@ -9,9 +9,9 @@ use App\Models\Product;
 
 class CommandController extends Controller
 {
-    public function index()
+        public function index()
     {
-        $commands = Command::all();
+        $commands = Command::with('user:id,name')->get();
         return response()->json($commands, 200);
     }
 
