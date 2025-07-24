@@ -56,31 +56,9 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'promoprice' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'image' => 'required|string',
+            'image_public_id' => 'required|string',
         ]);
-
-        // Gestion de l'image avec Cloudinary
-        if ($request->hasFile('image')) {
-            try {
-                $uploadedFile = Cloudinary::upload($request->file('image')->getRealPath(), [
-                    'folder' => 'products',
-                    'transformation' => [
-                        'width' => 800,
-                        'height' => 800,
-                        'crop' => 'limit',
-                        'quality' => 'auto'
-                    ]
-                ]);
-
-                $data['image'] = $uploadedFile->getSecurePath();
-                $data['image_public_id'] = $uploadedFile->getPublicId();
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Image upload failed',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-        }
 
         $product = Product::create($data);
 
@@ -168,42 +146,11 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'promoprice' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
+            'image' => 'required|string',
+            'image_public_id' => 'required|string',
         ]);
 
         $product = Product::findOrFail($id);
-
-        // Gestion de l'image avec Cloudinary
-        if (request()->hasFile('image')) {
-            try {
-                // Supprimer l'ancienne image de Cloudinary si elle existe
-                if ($product->image_public_id) {
-                    Cloudinary::destroy($product->image_public_id);
-                }
-
-                $uploadedFile = Cloudinary::upload(request()->file('image')->getRealPath(), [
-                    'folder' => 'products',
-                    'transformation' => [
-                        'width' => 800,
-                        'height' => 800,
-                        'crop' => 'limit',
-                        'quality' => 'auto'
-                    ]
-                ]);
-
-                $data['image'] = $uploadedFile->getSecurePath();
-                $data['image_public_id'] = $uploadedFile->getPublicId();
-            } catch (\Exception $e) {
-                return response()->json([
-                    'message' => 'Image upload failed',
-                    'error' => $e->getMessage()
-                ], 500);
-            }
-        } else {
-            // Conserver les valeurs existantes si aucune nouvelle image n'est fournie
-            $data['image'] = $product->image;
-            $data['image_public_id'] = $product->image_public_id;
-        }
 
         $product->update($data);
 
@@ -216,11 +163,6 @@ class ProductController extends Controller
     public function destroy($id)
     {
         $product = Product::findOrFail($id);
-
-        // Supprimer l'image de Cloudinary si elle existe
-        if ($product->image_public_id) {
-            Cloudinary::destroy($product->image_public_id);
-        }
 
         $product->delete();
 

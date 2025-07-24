@@ -32,7 +32,7 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
-            'image' => 'required|string|',
+            'image' => 'required|string',
             'image_public_id' => 'required|string',
         ]);
     
