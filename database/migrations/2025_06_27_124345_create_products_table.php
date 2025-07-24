@@ -18,6 +18,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->decimal('promoprice', 10,2)->nullable();
             $table->string('image')->nullable();
+            $table->string('image_public_id')->nullable();
             $table->foreignId('category_id')->constrained()->onDelete('cascade');
             $table->integer('stock')->default(0); 
             $table->timestamps();

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Product;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class ProductController extends Controller
 {
@@ -14,12 +14,12 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with(['category'])
-            ->select('id', 'name', 'description', 'price', 'promoprice', 'image', 'category_id')
+            ->select('id', 'name', 'description', 'price', 'promoprice', 'image', 'category_id', 'image_public_id')
             ->get();
         return response()->json($products);
     }
 
-        /**
+    /**
      * Affiche la liste des 10 produits dont le promoprice est différent de 0.00, toutes catégories confondues.
      */
     public function topPromoProducts()
@@ -32,7 +32,7 @@ class ProductController extends Controller
         return response()->json($products, 200);
     }
 
-     /**
+    /**
      * Affiche la liste des 10 derniers produits ajoutés.
      */
     public function latestProducts()
@@ -46,14 +46,6 @@ class ProductController extends Controller
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-
-    }
-
-    /**
      * Store a newly created resource in storage.
      */
     public function store(Request $request)
@@ -64,18 +56,38 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'promoprice' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
 
-        // Gestion de l'image
+        // Gestion de l'image avec Cloudinary
         if ($request->hasFile('image')) {
-            $imagePath = $request->file('image')->store('products', 'public');
-            $data['image'] = $imagePath;
+            try {
+                $uploadedFile = Cloudinary::upload($request->file('image')->getRealPath(), [
+                    'folder' => 'products',
+                    'transformation' => [
+                        'width' => 800,
+                        'height' => 800,
+                        'crop' => 'limit',
+                        'quality' => 'auto'
+                    ]
+                ]);
+
+                $data['image'] = $uploadedFile->getSecurePath();
+                $data['image_public_id'] = $uploadedFile->getPublicId();
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Image upload failed',
+                    'error' => $e->getMessage()
+                ], 500);
+            }
         }
 
         $product = Product::create($data);
 
-        return response()->json(['message' => 'Product created successfully', 'product' => $product, 'image_url' => $product->image ? asset("storage/{$product->image}") : null], 201);
+        return response()->json([
+            'message' => 'Product created successfully',
+            'product' => $product
+        ], 201);
     }
 
     /**
@@ -83,12 +95,10 @@ class ProductController extends Controller
      */
     public function show($name)
     {
-        // Charge le produit avec ses relations
         $product = Product::with('category')
                 ->where('name', $name)
                 ->firstOrFail();
 
-        // Structure de la réponse
         $response = [
             'id' => $product->id,
             'name' => $product->name,
@@ -118,10 +128,7 @@ class ProductController extends Controller
     }
 
     /**
-     * Recherche des produits par nom, description ou catégorie
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\JsonResponse
+     * Recherche des produits
      */
     public function search(Request $request)
     {
@@ -143,20 +150,11 @@ class ProductController extends Controller
             ->limit(10)
             ->get()
             ->map(function($product) {
-                // Inclure le nom de la catégorie dans les résultats
                 $product->category_name = $product->category->name;
                 return $product;
             });
 
         return response()->json($products);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Product $product)
-    {
-        //
     }
 
     /**
@@ -170,24 +168,43 @@ class ProductController extends Controller
             'price' => 'required|numeric|min:0',
             'promoprice' => 'nullable|numeric|min:0',
             'category_id' => 'required|exists:categories,id',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048'
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048'
         ]);
+
         $product = Product::findOrFail($id);
 
-        // Gestion de l'image
+        // Gestion de l'image avec Cloudinary
         if (request()->hasFile('image')) {
-            // Supprimer l'ancienne image si elle existe
-            if ($product->image) {
-                \Storage::disk('public')->delete($product->image);
+            try {
+                // Supprimer l'ancienne image de Cloudinary si elle existe
+                if ($product->image_public_id) {
+                    Cloudinary::destroy($product->image_public_id);
+                }
+
+                $uploadedFile = Cloudinary::upload(request()->file('image')->getRealPath(), [
+                    'folder' => 'products',
+                    'transformation' => [
+                        'width' => 800,
+                        'height' => 800,
+                        'crop' => 'limit',
+                        'quality' => 'auto'
+                    ]
+                ]);
+
+                $data['image'] = $uploadedFile->getSecurePath();
+                $data['image_public_id'] = $uploadedFile->getPublicId();
+            } catch (\Exception $e) {
+                return response()->json([
+                    'message' => 'Image upload failed',
+                    'error' => $e->getMessage()
+                ], 500);
             }
-            $imagePath = request()->file('image')->store('products', 'public');
-            $data['image'] = $imagePath;
         } else {
-            // Si aucune nouvelle image n'est fournie, conserver l'ancienne
+            // Conserver les valeurs existantes si aucune nouvelle image n'est fournie
             $data['image'] = $product->image;
+            $data['image_public_id'] = $product->image_public_id;
         }
 
-        // Mettre à jour le produit
         $product->update($data);
 
         return response()->json(['message' => 'Product updated successfully', 'product' => $product], 200);
@@ -200,9 +217,9 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
 
-        // Supprimer l'image du produit si elle existe
-        if ($product->image) {
-            Storage::disk('public')->delete($product->image);
+        // Supprimer l'image de Cloudinary si elle existe
+        if ($product->image_public_id) {
+            Cloudinary::destroy($product->image_public_id);
         }
 
         $product->delete();

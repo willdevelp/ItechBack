@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Models;
-
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
@@ -16,6 +16,7 @@ class Category extends Model
     protected $fillable = [
         'name',
         'image',
+        'image_public_id',
     ];
 
     /**
@@ -36,4 +37,12 @@ class Category extends Model
         return $this->hasMany(Product::class);
     }
 
+    protected static function booted()
+    {
+        static::deleted(function ($category) {
+            if ($category->image_public_id) {
+                Cloudinary::destroy($category->image_public_id);
+            }
+        });
+    }
 }

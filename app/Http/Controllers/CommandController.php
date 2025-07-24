@@ -112,4 +112,10 @@ class CommandController extends Controller
 
         return response()->json($result, 200);
     }
+
+    public function destroy($id){
+        $commande = Command::findOrFail($id);
+        $commande->delete();
+        return response()->json(['message' => 'Commande supprimée avec succès']);
+    }
 }
