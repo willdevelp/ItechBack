@@ -32,37 +32,15 @@ class CategoryController extends Controller
     {
         $data = $request->validate([
             'name' => 'required|string|max:255|unique:categories,name',
+            'image' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'image_public_id' => 'required|string',
         ]);
-    
-        // Gestion de l'image avec Cloudinary
-        if ($request->hasFile('image')) {
-            // Upload vers Cloudinary
-            $uploadedFile = Cloudinary::upload($request->file('image')->getRealPath(), [
-                'folder' => 'categories', // Dossier dans Cloudinary
-                'public_id' => 'category_'.time(), // Nom unique pour le fichier
-                'transformation' => [
-                    'width' => 800,
-                    'height' => 800,
-                    'crop' => 'limit'
-                ]
-            ]);
-    
-            // Stocke l'URL sécurisée et le public_id
-            $data['image'] = $uploadedFile->getSecurePath();
-            $data['image_public_id'] = $uploadedFile->getPublicId();
-        }
-    
-        // Crée la catégorie avec les données validées
-        $data['image'] = $data['image'] ?? null;
-        $data['image_public_id'] = $data['image_public_id'] ?? null;
-        $data['name'] = trim($data['name']);
     
         $category = Category::create($data);
     
         return response()->json([
             'message' => 'Category created successfully', 
             'category' => $category,
-            'image_url' => $data['image']
         ], 201);
     }
 
@@ -87,36 +65,7 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        $data = $request->validate([
-            'name' => 'required|string|max:255|unique:categories,name,' . $category->id,
-        ]);
-
-        // Gestion de l'image avec Cloudinary
-        if ($request->hasFile('image')) {
-            // Upload vers Cloudinary
-            $uploadedFile = Cloudinary::upload($request->file('image')->getRealPath(), [
-                'folder' => 'categories', // Dossier dans Cloudinary
-                'public_id' => 'category_'.time(), // Nom unique pour le fichier
-                'transformation' => [
-                    'width' => 800,
-                    'height' => 800,
-                    'crop' => 'limit'
-                ]
-            ]);
     
-            // Stocke l'URL sécurisée et le public_id
-            $data['image'] = $uploadedFile->getSecurePath();
-            $data['image_public_id'] = $uploadedFile->getPublicId();
-        }
-
-        // Met à jour la catégorie avec les données validées
-        $category->update($data);
-
-        return response()->json([
-            'message' => 'Category updated successfully', 
-            'category' => $category,
-            'image_url' => $data['image']
-        ], 200);
     }
 
     /**
